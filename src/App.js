@@ -1,133 +1,213 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage } from 'aws-amplify';
+import { API, Storage, graphqlOperation } from 'aws-amplify';
 import {
   Button,
   Flex,
   Heading,
-  Image,
+  //Image,
   Text,
   TextField,
+  TextAreaField,
   View,
   withAuthenticator,
 } from '@aws-amplify/ui-react';
-import { listNotes } from "./graphql/queries";
+import { listIssues, listUpdates } from "./graphql/queries";
 import {
-  createNote as createNoteMutation,
-  deleteNote as deleteNoteMutation,
+  createIssue as createIssueMutation,
+  deleteIssue as deleteIssueMutation,
+  createUpdate as createUpdateMutation,
+  deleteUpdate as deleteUpdateMutation,
 } from "./graphql/mutations";
+import Issue from './components/Issue'
 
+const customListIssuesQuery = `
+  query {
+    listIssues {
+      items {
+        title
+        description
+        id
+        createdAt
+        updates {
+          items {
+            id
+            content
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`;
+
+const customListUpdatesQuery = `
+  query {
+    listUpdates {
+      items {
+        content
+        id
+        createdAt
+        issue {
+          title
+          id
+        }
+      }
+    }
+  }
+`;
 const App = ({ signOut }) => {
-  const [notes, setNotes] = useState([]);
-
+  const [issues, setIssues] = useState([]);
+  const [updates, setUpdates] = useState([]);
+  
   useEffect(() => {
-    fetchNotes();
+    fetchIssues();
+    fetchUpdates();
   }, []);
 
-  async function fetchNotes() {
-    const apiData = await API.graphql({ query: listNotes });
-    const notesFromAPI = apiData.data.listNotes.items;
-    await Promise.all(
-      notesFromAPI.map(async (note) => {
-        if (note.image) {
-          const url = await Storage.get(note.name);
-          note.image = url;
-        }
-        return note;
-      })
-    );
-    setNotes(notesFromAPI);
+  async function fetchIssues() {
+    const apiData = await API.graphql(graphqlOperation(customListIssuesQuery));
+    const issuesFromAPI = apiData.data.listIssues.items;
+    setIssues(issuesFromAPI);
+    console.log(issuesFromAPI);
   }
 
-  async function createNote(event) {
+  async function fetchUpdates() {
+    const apiData = await API.graphql(graphqlOperation(customListUpdatesQuery));
+    //const apiData = await API.graphql({ query: listUpdates });
+    const updatesFromAPI = apiData.data.listUpdates.items;
+    //.filter(elements => {
+    //  return elements !== null;
+    //});
+    console.log(JSON.stringify(updatesFromAPI));
+    setUpdates(updatesFromAPI);
+  }
+
+  async function createIssue(event) {
+    console.log("createIssue");
     event.preventDefault();
     const form = new FormData(event.target);
-    const image = form.get("image");
     const data = {
-      name: form.get("name"),
+      title: form.get("title"),
       description: form.get("description"),
-      image: image.name,
     };
-    if (!!data.image) await Storage.put(data.name, image);
-    await API.graphql({
-      query: createNoteMutation,
-      variables: { input: data },
+    const newIssue = await API.graphql({
+      query: createIssueMutation,
+      variables: { input: data, 
+       // condition: conditions 
+      },
     });
-    fetchNotes();
+    
+    const data2 = {
+      content: "Did i mention that XXX Created new Issue",
+      issueUpdatesId: newIssue.data.createIssue.id,
+    };
+    console.log(JSON.stringify(data2));
+    const newUpdate = await API.graphql({
+      query: createUpdateMutation,
+      variables: { input: data2 },
+    });
+    console.log(newUpdate);
+    
+    fetchIssues();
+    fetchUpdates();
+    
     event.target.reset();
+    
   }
 
-  async function deleteNote({ id, name }) {
-    const newNotes = notes.filter((note) => note.id !== id);
-    setNotes(newNotes);
-    await Storage.remove(name);
+  async function createUpdate(issueId, content) {
+    console.log("createUpdate");
+    //console.log(JSON.stringify(event));
+    //event.preventDefault();
+    //const form = new FormData(event.target);
+    const data = {
+      content: content,
+      issueId: issueId,
+    };
+    const newUpdate = await API.graphql({
+      query: createUpdateMutation,
+      variables: { input: data },
+    });
+
+    fetchIssues();
+    console.log(JSON.stringify(data));
+  }
+
+  
+
+  async function deleteIssue({ id, title }) {
+    console.log("Delete Issue");
+    console.log(JSON.stringify(id));
+    console.log(title);
+    
+    const newIssues = issues.filter((issue) => issue.id !== id);
+    setIssues(newIssues);
     await API.graphql({
-      query: deleteNoteMutation,
+      query: deleteIssueMutation,
       variables: { input: { id } },
     });
   }
 
+  async function deleteUpdate({ id }) {
+    const newUpdates = updates.filter((update) => update.id !== id);
+    setUpdates(newUpdates);
+    await API.graphql({
+      query: deleteUpdateMutation,
+      variables: { input: { id } },
+    });
+  }
+
+  
   return (
     <View className="App">
-      <Heading level={1}>My Notes App</Heading>
-      <View as="form" margin="3rem 0" onSubmit={createNote}>
+      <Heading level={1}>Issue Logger</Heading>
+      
+      <View as="form" onSubmit={createIssue}>
         <Flex direction="row" justifyContent="center">
           <TextField
-            name="name"
-            placeholder="Note Name"
-            label="Note Name"
+            name="title"
+            placeholder="Issue Title"
+            label="Issue Title"
             labelHidden
             variation="quiet"
             required
           />
-          <TextField
+          <TextAreaField
             name="description"
-            placeholder="Note Description"
-            label="Note Description"
+            placeholder="Issue Description"
+            label="Issue Description"
             labelHidden
             variation="quiet"
             required
           />
           <Button type="submit" variation="primary">
-            Create Note
+            Create Issue
           </Button>
-          <View
-            name="image"
-            as="input"
-            type="file"
-            style={{ alignSelf: "end" }}
-          />
         </Flex>
       </View>
-      <Heading level={2}>Current Notes</Heading>
-      <View margin="3rem 0">
-        {notes.map((note) => (
-          <Flex
-            key={note.id || note.name}
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Text as="strong" fontWeight={700}>
-              {note.name}
-            </Text>
-            <Text as="span">{note.description}</Text>
-            {note.image && (
-              <Image
-                src={note.image}
-                alt={`visual aid for ${notes.name}`}
-                style={{ width: 400 }}
-              />
-            )}
-            <Button variation="link" onClick={() => deleteNote(note)}>
-              Delete note
-            </Button>
-          </Flex>
+      
+      <Heading level={2}>Issues Table</Heading>
+      <View className="issues-table" margin="3rem 0">
+        {issues.map((issue) => (
+            <div key = {issue.id || issue.title}>
+              <Issue  issue = {issue} 
+                      deleteMe = {() => deleteIssue(Issue)}
+                      refreshData = {() => fetchIssues()}
+              ></Issue>
+              {/* <Button variation="primary" onClick={() => deleteIssue(issue)}>
+                Delete issue
+              </Button> */}
+            </div>
+            
         ))}
-      </View>
+      </View>  
+      
+     
       <Button onClick={signOut}>Sign Out</Button>
     </View>
+
   );
 };
 

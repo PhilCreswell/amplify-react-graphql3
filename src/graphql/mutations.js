@@ -1,48 +1,147 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createNote = /* GraphQL */ `
-  mutation CreateNote(
-    $input: CreateNoteInput!
-    $condition: ModelNoteConditionInput
+export const createIssue = /* GraphQL */ `
+  mutation CreateIssue(
+    $input: CreateIssueInput!
+    $condition: ModelIssueConditionInput
   ) {
-    createNote(input: $input, condition: $condition) {
+    createIssue(input: $input, condition: $condition) {
       id
-      name
+      title
       description
-      image
+      updates {
+        items {
+          id
+          content
+          createdAt
+          updatedAt
+          issueUpdatesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
   }
 `;
-export const updateNote = /* GraphQL */ `
-  mutation UpdateNote(
-    $input: UpdateNoteInput!
-    $condition: ModelNoteConditionInput
+export const updateIssue = /* GraphQL */ `
+  mutation UpdateIssue(
+    $input: UpdateIssueInput!
+    $condition: ModelIssueConditionInput
   ) {
-    updateNote(input: $input, condition: $condition) {
+    updateIssue(input: $input, condition: $condition) {
       id
-      name
+      title
       description
-      image
+      updates {
+        items {
+          id
+          content
+          createdAt
+          updatedAt
+          issueUpdatesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
   }
 `;
-export const deleteNote = /* GraphQL */ `
-  mutation DeleteNote(
-    $input: DeleteNoteInput!
-    $condition: ModelNoteConditionInput
+export const deleteIssue = /* GraphQL */ `
+  mutation DeleteIssue(
+    $input: DeleteIssueInput!
+    $condition: ModelIssueConditionInput
   ) {
-    deleteNote(input: $input, condition: $condition) {
+    deleteIssue(input: $input, condition: $condition) {
       id
-      name
+      title
       description
-      image
+      updates {
+        items {
+          id
+          content
+          createdAt
+          updatedAt
+          issueUpdatesId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+    }
+  }
+`;
+export const createUpdate = /* GraphQL */ `
+  mutation CreateUpdate(
+    $input: CreateUpdateInput!
+    $condition: ModelUpdateConditionInput
+  ) {
+    createUpdate(input: $input, condition: $condition) {
+      id
+      content
+      issue {
+        id
+        title
+        description
+        updates {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+      issueUpdatesId
+    }
+  }
+`;
+export const updateUpdate = /* GraphQL */ `
+  mutation UpdateUpdate(
+    $input: UpdateUpdateInput!
+    $condition: ModelUpdateConditionInput
+  ) {
+    updateUpdate(input: $input, condition: $condition) {
+      id
+      content
+      issue {
+        id
+        title
+        description
+        updates {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+      issueUpdatesId
+    }
+  }
+`;
+export const deleteUpdate = /* GraphQL */ `
+  mutation DeleteUpdate(
+    $input: DeleteUpdateInput!
+    $condition: ModelUpdateConditionInput
+  ) {
+    deleteUpdate(input: $input, condition: $condition) {
+      id
+      content
+      issue {
+        id
+        title
+        description
+        updates {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+      issueUpdatesId
     }
   }
 `;

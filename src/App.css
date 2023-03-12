@@ -36,3 +36,107 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* Custom CSS below  */
+
+.issues-table {
+  margin: 10 10 10 10;
+ 
+}
+
+.issue-section {
+ 
+}
+
+.issue-row {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 8fr 2fr;
+  grid-template-rows: 2rem 2rem;
+  grid-auto-rows: minmax(100px, auto) ;
+  margin-top: 4em;
+  line-height: 1em;
+}
+
+.issue-id {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.issue-update-count {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.issue-title {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: large;
+  text-align: left;
+  font-weight: bold;
+
+}
+
+.issue-timestamp {
+  grid-column: 4;
+  grid-row: 1;
+}
+
+.issue-description {
+  grid-column: 3;
+  text-align: left;
+}
+
+.updates-section {
+  background-color: #f6f6f6;
+}
+
+.update-row {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 8fr 2fr;
+  grid-auto-rows: minmax(10px, auto) ;
+  margin-top: 0.5em;
+}
+
+.update-id {
+  grid-column: 1;
+}
+
+.update-content {
+  grid-column: 3;
+  text-align: left;
+}
+
+.update-timestamp {
+  grid-column: 4;
+}
+
+.add-update-row {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 8fr 2fr;
+  grid-template-rows: 2rem;
+  grid-auto-rows: minmax(100px, auto) ;
+  margin-top: 0.5em;
+  line-height: 2em;
+}
+
+
+.add-update-content.amplify-textfield {
+  grid-column: 3;
+  width: 100%;
+}
+
+.add-update-button.amplify-button {
+  grid-column: 4;
+}
+
+.person-id {
+  grid-column: 2;
+}
+
+form {
+  margin: 1em 0px;
+}
